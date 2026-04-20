@@ -1,3 +1,4 @@
+import re
 from typing import Dict, List
 
 
@@ -61,6 +62,17 @@ def assess_risk(
         # This is usually good, but still risky.
         score -= 5
         reasons.append("Bare except was modified, verify correctness.")
+
+    if issues and original_code.strip() == fixed_code.strip():
+        score -= 30
+        reasons.append("Issues were detected but the fix made no code changes.")
+
+    # Signature changes can break call sites even when function bodies look safe.
+    original_defs = re.findall(r"^\s*def\s+[^\n]+", original_code, flags=re.MULTILINE)
+    fixed_defs = re.findall(r"^\s*def\s+[^\n]+", fixed_code, flags=re.MULTILINE)
+    if original_defs != fixed_defs:
+        score -= 20
+        reasons.append("Function signature(s) changed, verify call compatibility.")
 
     # ----------------------------
     # Clamp score

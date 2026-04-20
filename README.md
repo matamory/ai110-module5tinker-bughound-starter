@@ -1,3 +1,6 @@
+TF summary: 
+The core concept students need to understand with this project is solidifying an effective agentic workflow rather than single AI call. The biggest challenge is understanding when the system quietly falls back and how that changes outcomes. AI is useful for speed and idea generation, but can mislead when outputs are ambiguous or of unexpected formats. One way I would guide students through this assignment is to have them caregully inspect logs, pause and take note of difference between different outputs at the begininng, and thoroughly assess risk signals to justify decisions instead of guessing.
+
 # 🐶 BugHound
 
 BugHound is a small, agent-style debugging tool. It analyzes a Python code snippet, proposes a fix, and runs basic reliability checks before deciding whether the fix is safe to apply automatically.

@@ -176,6 +176,9 @@ class BugHoundAgent:
         parsed = self._try_json_loads(text)
         if isinstance(parsed, list):
             return self._normalize_issues(parsed)
+        if isinstance(parsed, dict):
+            # Accept a single issue object and normalize it as a one-item list.
+            return self._normalize_issues([parsed])
 
         array_str = self._extract_first_json_array(text)
         if array_str:

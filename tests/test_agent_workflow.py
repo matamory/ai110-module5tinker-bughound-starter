@@ -47,3 +47,23 @@ def test_mock_client_forces_llm_fallback_to_heuristics_for_analysis():
     assert any(issue.get("type") == "Code Quality" for issue in result["issues"])
     # Ensure we logged the fallback path
     assert any("Falling back to heuristics" in entry.get("message", "") for entry in result["logs"])
+
+
+def test_noop_fix_with_detected_issue_is_not_autofixed():
+    class NoopFixClient:
+        def complete(self, system_prompt: str, user_prompt: str) -> str:
+            if "Return ONLY valid JSON" in system_prompt:
+                return '[{"type":"Maintainability","severity":"Medium","msg":"TODO found"}]'
+
+            # Return the original snippet unchanged as the "fix".
+            marker = "CODE:\n"
+            return user_prompt.split(marker, 1)[1] if marker in user_prompt else ""
+
+    agent = BugHoundAgent(client=NoopFixClient())
+    code = "# TODO: implement logic\n"
+    result = agent.run(code)
+
+    assert len(result["issues"]) == 1
+    assert result["fixed_code"].strip() == code.strip()
+    assert result["risk"]["should_autofix"] is False
+    assert result["risk"]["level"] in ("medium", "high")
